@@ -34,7 +34,7 @@ var getDateien = function(callback) {
       "n.type LIKE 'datei'"
    ];
    var group = "tx.vid";
-   var limit = "10";
+   var limit = "0";
 
    for (let i in joins) {
       joins[i] = joins[i][0] + " JOIN " + joins[i][1] + " AS " + joins[i][2] + " ON (" + joins[i][3] + ")";
