@@ -34,14 +34,14 @@ var getDateien = function(callback) {
       "n.type LIKE 'datei'"
    ];
    var group = "tx.vid";
-   var limit = "100000";
+   var limit = "5";
 
    for (let i in joins) {
       joins[i] = joins[i][0] + " JOIN " + joins[i][1] + " AS " + joins[i][2] + " ON (" + joins[i][3] + ")";
    }
-   var q = "SELECT "+fields.join(",")+" FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ") + " LIMIT 0," + limit;
+   var q = "SELECT "+fields.join(",")+" FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ");
    var q2 = "(SELECT term_node.vid, term_data.name FROM term_node LEFT JOIN term_data ON (term_node.tid = term_data.tid)  WHERE term_data.vid =2)";
-   var q = "SELECT n.*, GROUP_CONCAT(DISTINCT abschnitt.name) as Abschnitte FROM ("+q+") as n RIGHT JOIN " + q2 + " as abschnitt ON (abschnitt.vid = n.vid) WHERE n.nid IS NOT NULL GROUP BY abschnitt.vid";
+   var q = "SELECT n.*, GROUP_CONCAT(DISTINCT abschnitt.name) as Abschnitte FROM ("+q+") as n RIGHT JOIN " + q2 + " as abschnitt ON (abschnitt.vid = n.vid) WHERE n.nid IS NOT NULL GROUP BY abschnitt.vid LIMIT 0," + limit;
    if (config.dev) console.log(q);
    connection.query(q, function(err, rows) {
       if(err) {
