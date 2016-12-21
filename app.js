@@ -34,11 +34,12 @@ var getDateien = function(callback) {
       "n.nid IS NOT NULL",
       "n.type LIKE 'datei'"
    ];
+   var limit = "10";
 
    for (let i in joins) {
       joins[i] = joins[i][0] + " JOIN " + joins[i][1] + " AS " + joins[i][2] + " ON (" + joins[i][3] + ")";
    }
-   var q = "SELECT "+fields.join(",")+" FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ");
+   var q = "SELECT "+fields.join(",")+" FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ") + " LIMIT 0," + limit;
    if (config.dev) console.log(q);
    connection.query(q, function(err, rows) {
       if(err) {
@@ -46,7 +47,7 @@ var getDateien = function(callback) {
          callback(err)
       }
       else {
-         //if(config.dev) console.log(rows);
+         if(config.dev) console.log(rows);
          callback(null, rows);
       }
    });
