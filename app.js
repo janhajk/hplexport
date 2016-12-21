@@ -28,7 +28,7 @@ var getDateien = function(callback) {
    for (let i in joins) {
       joins[i] = joins[i][0] + " JOIN " + joins[i][1] + " AS " + joins[i][2] + " ON (" + joins[i][3] + ")";
    }
-   var q = "SELECT * FROM " + select[0] + " AS " + select[0] + " " + joins.join(" ") + " " + where.join(" AND ");
+   var q = "SELECT * FROM " + select[0] + " AS " + select[0] + " " + joins.join(" ") + " WHERE " + where.join(" AND ");
    if (config.dev) console.log(q);
    connection.query(q, function(err, rows) {
       if(err) {
