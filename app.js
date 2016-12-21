@@ -20,7 +20,7 @@ var getDateien = function(callback) {
       "f.filename",
       "f.filepath",
       "cd.field_hplbl_dokumentendatum_value",
-      "td.name"
+      "tx.name"
    ];
    var select = ["node", "n"];
    var joins = [
@@ -32,8 +32,7 @@ var getDateien = function(callback) {
    ];
    var where = [
       "n.nid IS NOT NULL",
-      "n.type LIKE 'datei'",
-      "td.vid = 2" // Abschnitt
+      "n.type LIKE 'datei'"
    ];
 
    for (let i in joins) {
