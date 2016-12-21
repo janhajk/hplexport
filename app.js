@@ -38,7 +38,7 @@ var getDateien = function(callback) {
 };
 
 getDateien(function(err, rows){
-   console.log(rows);
+   //console.log(rows);
 });
 
 var fileExport  = function(filetree) {
