@@ -19,7 +19,8 @@ var getDateien = function(callback) {
       "n.title",
       "f.filename",
       "f.filepath",
-      "cd.field_hplbl_dokumentendatum_value"
+      "cd.field_hplbl_dokumentendatum_value",
+      "td.name"
    ];
    var select = ["node", "n"];
    var joins = [
