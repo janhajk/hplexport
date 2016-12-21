@@ -20,6 +20,7 @@ var getDateien = function(callback) {
       "f.filename",
       "f.filepath",
       "cd.field_hplbl_dokumentendatum_value",
+      "GROUP_CONCAT(tx.name)",
       "tx.name"
    ];
    var select = ["node", "n"];
@@ -28,18 +29,19 @@ var getDateien = function(callback) {
       ["RIGHT", "content_field_hplbl_file", "cf", "cf.vid = nr.vid"],
       ["LEFT", "files", "f", "f.fid = cf.field_hplbl_file_fid"],
       ["LEFT", "content_type_datei", "cd", "cd.vid ="+select[1]+".vid"],
-      ["LEFT", "(SELECT term_node.vid, term_data.name FROM term_node LEFT JOIN term_data ON (term_node.tid = term_data.tid)  WHERE term_data.vid =2)", "tx", "tx.vid="+select[1]+".vid"]
+      ["RIGHT", "(SELECT term_node.vid, term_data.name FROM term_node LEFT JOIN term_data ON (term_node.tid = term_data.tid)  WHERE term_data.vid =2)", "tx", "tx.vid="+select[1]+".vid"]
    ];
    var where = [
       "n.nid IS NOT NULL",
       "n.type LIKE 'datei'"
    ];
+   var group = "tx.vid";
    var limit = "10";
 
    for (let i in joins) {
       joins[i] = joins[i][0] + " JOIN " + joins[i][1] + " AS " + joins[i][2] + " ON (" + joins[i][3] + ")";
    }
-   var q = "SELECT "+fields.join(",")+" FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ") + " LIMIT 0," + limit;
+   var q = "SELECT "+fields.join(",")+" FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ") + " GROUP BY " + group + " LIMIT 0," + limit;
    if (config.dev) console.log(q);
    connection.query(q, function(err, rows) {
       if(err) {
