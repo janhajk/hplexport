@@ -16,12 +16,11 @@ var connection = mysql.createConnection({
 var getDateien = function(callback) {
    var fields = [
       "n.nid",
+      "n.vid",
       "n.title",
       "f.filename",
       "f.filepath",
-      "cd.field_hplbl_dokumentendatum_value",
-      "GROUP_CONCAT(tx.name)",
-      "tx.name"
+      "cd.field_hplbl_dokumentendatum_value"
    ];
    var select = ["node", "n"];
    var joins = [
@@ -41,7 +40,9 @@ var getDateien = function(callback) {
    for (let i in joins) {
       joins[i] = joins[i][0] + " JOIN " + joins[i][1] + " AS " + joins[i][2] + " ON (" + joins[i][3] + ")";
    }
-   var q = "SELECT "+fields.join(",")+" FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ") + " GROUP BY " + group + " LIMIT 0," + limit;
+   var q = "SELECT "+fields.join(",")+" FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ") + " LIMIT 0," + limit;
+   var q2 = "(SELECT term_node.vid, term_data.name FROM term_node LEFT JOIN term_data ON (term_node.tid = term_data.tid)  WHERE term_data.vid =2)";
+   var q = "SELECT n.*, GROUP_CONCAT(abschnitt.name) as Abschnitte FROM ("+q+") as n RIGHT JOIN " + q2 + " as abschnitt ON (abschnitt.vid = n.vid)  GROUP BY abschnitt.vid WHERE n.nid IS NOT NULL";
    if (config.dev) console.log(q);
    connection.query(q, function(err, rows) {
       if(err) {
