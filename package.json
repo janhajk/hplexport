@@ -1,5 +1,5 @@
 {
-    "name": "Drupal file Archivar",
+    "name": "Drupal-file-Archivar",
     "description": "Exports all Files from Drupal to Directory Tree made from Taxonomy",
     "version": "0.0.1",
     "private": true,
