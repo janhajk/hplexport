@@ -14,16 +14,21 @@ var connection = mysql.createConnection({
 
 
 var getDateien = function(callback) {
-   var select = "SELECT * FROM node";
+
+   var select = ["node", "n"];
    var joins = [
-      ["LEFT", "node_revisions", "nr", "nr.vid = node.vid"],
+      ["LEFT", "node_revisions", "nr", "nr.vid = "+select[1]+".vid"],
       ["RIGHT", "content_field_hplbl_file", "cf", "cf.vid = nr.vid"],
       ["LEFT", "files", "f", "f.fid = cf.field_hplbl_file_fid"]
    ];
+   var where = [
+      "n.nid IS NOT NULL"
+   ];
+
    for (let i in joins) {
       joins[i] = joins[i][0] + " JOIN " + joins[i][1] + " AS " + joins[i][2] + " ON (" + joins[i][3] + ")";
    }
-   var q = select + " " + joins.join(" ");
+   var q = "SELECT * FROM " + select[0] + " AS " + select[0] + " " + joins.join(" ") + " " + where.join(" AND ");
    if (config.dev) console.log(q);
    connection.query(q, function(err, rows) {
       if(err) {
