@@ -27,8 +27,7 @@ var getDateien = function(callback) {
       ["LEFT", "node_revisions", "nr", "nr.vid = "+select[1]+".vid"],
       ["RIGHT", "content_field_hplbl_file", "cf", "cf.vid = nr.vid"],
       ["LEFT", "files", "f", "f.fid = cf.field_hplbl_file_fid"],
-      ["LEFT", "content_type_datei", "cd", "cd.vid ="+select[1]+".vid"],
-      ["RIGHT", "(SELECT term_node.vid, term_data.name FROM term_node LEFT JOIN term_data ON (term_node.tid = term_data.tid)  WHERE term_data.vid =2)", "tx", "tx.vid=cd.vid"]
+      ["LEFT", "content_type_datei", "cd", "cd.vid ="+select[1]+".vid"]
    ];
    var where = [
       "n.nid IS NOT NULL",
@@ -42,7 +41,7 @@ var getDateien = function(callback) {
    }
    var q = "SELECT "+fields.join(",")+" FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ") + " LIMIT 0," + limit;
    var q2 = "(SELECT term_node.vid, term_data.name FROM term_node LEFT JOIN term_data ON (term_node.tid = term_data.tid)  WHERE term_data.vid =2)";
-   var q = "SELECT n.*, GROUP_CONCAT(abschnitt.name) as Abschnitte FROM ("+q+") as n RIGHT JOIN " + q2 + " as abschnitt ON (abschnitt.vid = n.vid)  GROUP BY abschnitt.vid WHERE n.nid IS NOT NULL";
+   var q = "SELECT n.*, GROUP_CONCAT(abschnitt.name) as Abschnitte FROM ("+q+") as n RIGHT JOIN " + q2 + " as abschnitt ON (abschnitt.vid = n.vid) WHERE n.nid IS NOT NULL GROUP BY abschnitt.vid";
    if (config.dev) console.log(q);
    connection.query(q, function(err, rows) {
       if(err) {
