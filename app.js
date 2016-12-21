@@ -28,7 +28,7 @@ var getDateien = function(callback) {
       ["RIGHT", "content_field_hplbl_file", "cf", "cf.vid = nr.vid"],
       ["LEFT", "files", "f", "f.fid = cf.field_hplbl_file_fid"],
       ["LEFT", "content_type_datei", "cd", "cd.vid ="+select[1]+".vid"],
-      ["LEFT", "(SELECT term_node.vid, term_data.name FROM term_node LEFT JOIN term_data ON (term_node.tid = term_data.tid  WHERE term_data.vid =2)", "tx", "tx.vid = ""+select[1]+".vid"]
+      ["LEFT", "(SELECT term_node.vid, term_data.name FROM term_node LEFT JOIN term_data ON (term_node.tid = term_data.tid  WHERE term_data.vid =2)", "tx", "tx.vid="+select[1]+".vid"]
    ];
    var where = [
       "n.nid IS NOT NULL",
