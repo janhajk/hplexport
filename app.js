@@ -14,21 +14,29 @@ var connection = mysql.createConnection({
 
 
 var getDateien = function(callback) {
-
+   var fields = [
+      "n.nid",
+      "n.title",
+      "f.filename",
+      "f.filepath",
+      "cd.field_hplbl_dokumentendatum_value"
+   ];
    var select = ["node", "n"];
    var joins = [
       ["LEFT", "node_revisions", "nr", "nr.vid = "+select[1]+".vid"],
       ["RIGHT", "content_field_hplbl_file", "cf", "cf.vid = nr.vid"],
-      ["LEFT", "files", "f", "f.fid = cf.field_hplbl_file_fid"]
+      ["LEFT", "files", "f", "f.fid = cf.field_hplbl_file_fid"],
+      ["LEFT", "content_type_datei", "cd", "cd.vid ="+select[1]+".vid"],
    ];
    var where = [
-      "n.nid IS NOT NULL"
+      "n.nid IS NOT NULL",
+      "n.type LIKE 'datei'"
    ];
 
    for (let i in joins) {
       joins[i] = joins[i][0] + " JOIN " + joins[i][1] + " AS " + joins[i][2] + " ON (" + joins[i][3] + ")";
    }
-   var q = "SELECT * FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ");
+   var q = "SELECT "+fields.join(",")+" FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ");
    if (config.dev) console.log(q);
    connection.query(q, function(err, rows) {
       if(err) {
