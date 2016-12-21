@@ -41,7 +41,7 @@ getDateien(function(err, rows){
    console.log(rows);
 });
 
-var export = function(filetree) {
+var fileExport = function(filetree) {
    var s3 = require('s3');
 
    var client = s3.createClient({
