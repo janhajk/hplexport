@@ -4,9 +4,9 @@ exports.sql = {
    database: ''
 };
 exports.s3 = {
-   key = '',
-   secret = '',
-   bucket = ''
+   key : '',
+   secret : '',
+   bucket : ''
 };
 exports.port = 1341;
 

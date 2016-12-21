@@ -31,7 +31,7 @@ var getDateien = function(callback) {
          callback(err)
       }
       else {
-         if(config.dev) console.log(rows);
+         //if(config.dev) console.log(rows);
          callback(null, rows);
       }
    });
@@ -41,7 +41,7 @@ getDateien(function(err, rows){
    console.log(rows);
 });
 
-var fileExport = function(filetree) {
+var fileExport  = function(filetree) {
    var s3 = require('s3');
 
    var client = s3.createClient({
