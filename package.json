@@ -8,6 +8,7 @@
     },
     "dependencies": {
         "mysql": "2.12.x",
-        "async": "2.1.4"
+        "async": "2.1.4",
+        "s3": "4.4.x"
     }
 }
