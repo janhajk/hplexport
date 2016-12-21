@@ -27,12 +27,13 @@ var getDateien = function(callback) {
       ["RIGHT", "content_field_hplbl_file", "cf", "cf.vid = nr.vid"],
       ["LEFT", "files", "f", "f.fid = cf.field_hplbl_file_fid"],
       ["LEFT", "content_type_datei", "cd", "cd.vid ="+select[1]+".vid"],
-      ["LEFT", "term_node", "tn", "tn.vid ="+select[1]+".vid"]
+      ["LEFT", "term_node", "tn", "tn.vid ="+select[1]+".vid"],
+      ["LEFT", "term_data", "td", "td.tid =tn.tid"]
    ];
    var where = [
       "n.nid IS NOT NULL",
       "n.type LIKE 'datei'",
-      "tn."
+      "td.vid = 2" // Abschnitt
    ];
 
    for (let i in joins) {
