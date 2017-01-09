@@ -66,8 +66,11 @@ var getDateien = function(callback) {
             else {
                if(config.dev) console.log(files);
                for (let i in files) {
-                  nodesVid[files[i].vid].files.push(files[i]);
+                  if (i in nodesVid[i]) {
+                     nodesVid[files[i].vid].files.push(files[i]);
+                  }
                }
+               console.log(nodesVid);
                callback(null, nodesVid);
             }
          });
