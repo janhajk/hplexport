@@ -56,7 +56,7 @@ var getDateien = function(callback) {
             nodesVid[nodes[i].vid].files = [];
          }
          // Alle Files auslesen und danach den Nodes zuteilen
-         var q = "SELECT cf.vid, f.filename, f.filepath FROM files as f LEFT JOIN content_field_hplbl_file as cf ON (cf.field_hplbl_file_fid=f.fid) LIMIT 0,5;
+         var q = "SELECT cf.vid, f.filename, f.filepath FROM files as f LEFT JOIN content_field_hplbl_file as cf ON (cf.field_hplbl_file_fid=f.fid) LIMIT 0,5";
          connection.query(q, function(err, files) {
             if(err) {
                if (config.dev) console.log(err);
