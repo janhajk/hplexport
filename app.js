@@ -12,6 +12,13 @@ var connection = mysql.createConnection({
   database: config.sql.database
 });
 
+var cQuery = function(fields, select, joins, where) {
+   for (let i in joins) {
+      joins[i] = joins[i][0] + " JOIN " + joins[i][1] + " AS " + joins[i][2] + " ON (" + joins[i][3] + ")";
+   }
+   return "SELECT " + fields.join(",") + " FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ");
+};
+
 
 var getDateien = function(callback) {
    var fields = [
@@ -30,17 +37,9 @@ var getDateien = function(callback) {
    var where = [
       "n.type IN ('datei', 'ausmasskontrolle', 'baujournal', 'projektjournal')"
    ];
-   var limit = "5";
-   // Don't change
-   for (let i in joins) {
-      joins[i] = joins[i][0] + " JOIN " + joins[i][1] + " AS " + joins[i][2] + " ON (" + joins[i][3] + ")";
-   }
-   var q = "SELECT " + fields.join(",") + " FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ");
+   var q = cQuery(fields, select, joins, where);
    if (config.dev) console.log(q);
    // q liest nun erst einmal alle nodes in der aktuellsten version
-
-   //var q2 = "(SELECT term_node.vid, term_data.name FROM term_node LEFT JOIN term_data ON (term_node.tid = term_data.tid)  WHERE term_data.vid =2)";
-   //var q = "SELECT n.*, GROUP_CONCAT(DISTINCT abschnitt.name) as Abschnitte FROM ("+q+") as n RIGHT JOIN " + q2 + " as abschnitt ON (abschnitt.vid = n.vid) WHERE n.nid IS NOT NULL GROUP BY abschnitt.vid LIMIT 0," + limit;
 
    connection.query(q, function(err, nodes) {
       if(err) {
@@ -54,6 +53,7 @@ var getDateien = function(callback) {
          for (let i in nodes) {
             nodesVid[nodes[i].vid] = nodes[i];
             nodesVid[nodes[i].vid].files = [];
+            nodesVid[nodes[i].vid].terms = [];
          }
          console.log(nodesVid);
          // Alle Files auslesen und danach den Nodes zuteilen
@@ -64,12 +64,31 @@ var getDateien = function(callback) {
                callback(err)
             }
             else {
-               if(config.dev) console.log(files);
+               //if(config.dev) console.log(files);
                for (let i in files) {
                   if (files[i].vid in nodesVid) {
                      nodesVid[files[i].vid].files.push(files[i]);
                   }
                }
+               // Add Terms
+               var q = "SELECT tn.vid,tn.tid,td.name,v.name as vname,th.parent FROM term_node as tn LEFT JOIN term_data as td ON (td.tid=tn.tid) LEFT JOIN vocabulary as v ON (v.vid=td.vid) LEFT JOIN term_hierarchy as th ON (th.tid=td.tid)";
+               connection.query(q, function(err, terms) {
+                  if(err) {
+                     if (config.dev) console.log(err);
+                     callback(err)
+                  }
+                  else {
+                     //if(config.dev) console.log(terms);
+                     for (let i in terms) {
+                        if (files[i].vid in nodesVid) {
+                           nodesVid[files[i].vid].terms.push(files[i]);
+                        }
+                     }
+                     // Add Terms
+                     console.log(nodesVid);
+                     callback(null, nodesVid);
+                  }
+               });
                console.log(nodesVid);
                callback(null, nodesVid);
             }
