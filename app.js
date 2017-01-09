@@ -80,8 +80,8 @@ var getDateien = function(callback) {
                   else {
                      //if(config.dev) console.log(terms);
                      for (let i in terms) {
-                        if (files[i].vid in nodesVid) {
-                           nodesVid[files[i].vid].terms.push(files[i]);
+                        if (terms[i].vid in nodesVid) {
+                           nodesVid[terms[i].vid].terms.push(terms[i]);
                         }
                      }
                      // Add Terms
