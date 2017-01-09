@@ -66,7 +66,7 @@ var getDateien = function(callback) {
             else {
                if(config.dev) console.log(files);
                for (let i in files) {
-                  if (i in nodesVid[i]) {
+                  if (nodesVid.hasOwnProperty(files[i].vid)) {
                      nodesVid[files[i].vid].files.push(files[i]);
                   }
                }
