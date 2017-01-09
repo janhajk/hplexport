@@ -48,13 +48,14 @@ var getDateien = function(callback) {
          callback(err)
       }
       else {
-         if(config.dev) console.log(nodes);
+         //if(config.dev) console.log(nodes);
          // neues Array mit vid als Keys
          var nodesVid = {};
          for (let i in nodes) {
             nodesVid[nodes[i].vid] = nodes[i];
             nodesVid[nodes[i].vid].files = [];
          }
+         console.log(nodesVid);
          // Alle Files auslesen und danach den Nodes zuteilen
          var q = "SELECT cf.vid, f.filename, f.filepath FROM files as f LEFT JOIN content_field_hplbl_file as cf ON (cf.field_hplbl_file_fid=f.fid) LIMIT 0,5";
          connection.query(q, function(err, files) {
