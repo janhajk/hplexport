@@ -18,9 +18,9 @@ var getDateien = function(callback) {
       "n.nid",
       "n.vid",
       "n.title",
-      "f.filename",
-      "f.filepath",
-      "cd.field_hplbl_dokumentendatum_value"
+      "cd.field_hplbl_dokumentendatum_value",
+      "cd.field_hplbl_description_value",
+      "pp.field_hplbl_projektphase_value"
    ];
    var select = ["node", "n"];
    var joins = [
