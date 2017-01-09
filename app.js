@@ -36,19 +36,40 @@ var getDateien = function(callback) {
       joins[i] = joins[i][0] + " JOIN " + joins[i][1] + " AS " + joins[i][2] + " ON (" + joins[i][3] + ")";
    }
    var q = "SELECT " + fields.join(",") + " FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ");
-
+   if (config.dev) console.log(q);
+   // q liest nun erst einmal alle nodes in der aktuellsten version
 
    //var q2 = "(SELECT term_node.vid, term_data.name FROM term_node LEFT JOIN term_data ON (term_node.tid = term_data.tid)  WHERE term_data.vid =2)";
    //var q = "SELECT n.*, GROUP_CONCAT(DISTINCT abschnitt.name) as Abschnitte FROM ("+q+") as n RIGHT JOIN " + q2 + " as abschnitt ON (abschnitt.vid = n.vid) WHERE n.nid IS NOT NULL GROUP BY abschnitt.vid LIMIT 0," + limit;
-   if (config.dev) console.log(q);
-   connection.query(q, function(err, rows) {
+
+   connection.query(q, function(err, nodes) {
       if(err) {
          if (config.dev) console.log(err);
          callback(err)
       }
       else {
-         if(config.dev) console.log(rows);
-         callback(null, rows);
+         if(config.dev) console.log(nodes);
+         // neues Array mit vid als Keys
+         var nodesVid = {};
+         for (let i in nodes) {
+            nodesVid[nodes[i].vid] = nodes[i];
+            nodesVid[nodes[i].vid].files = [];
+         }
+         // Alle Files auslesen und danach den Nodes zuteilen
+         var q = "SELECT cf.vid, f.filename, f.filepath FROM files as f LEFT JOIN content_field_hplbl_file as cf ON (cf.field_hplbl_file_fid=f.fid) LIMIT 0,5;
+         connection.query(q, function(err, files) {
+            if(err) {
+               if (config.dev) console.log(err);
+               callback(err)
+            }
+            else {
+               if(config.dev) console.log(files);
+               for (let i in files) {
+                  nodesVid[files[i].vid].files.push(files[i]);
+               }
+               callback(null, nodesVid);
+            }
+         });
       }
    });
 };
