@@ -43,7 +43,7 @@ var getNodes = function(callback) {
          ["LEFT", "content_type_baujournal", "bj", "bj.vid ="+select[1]+".vid"]
       ];
       var where = [
-         "n.type IN ('datei', 'ausmasskontrolle', 'baujournal', 'projektjournal')"
+         "n.type IN ('datei', baujournal', 'projektjournal')" // Ausmasskontrolle
       ];
       var q = cQuery(fields, select, joins, where);
       //if (config.dev) console.log(q);
