@@ -212,6 +212,7 @@ var createPath = function(node) {
    pfad.push(abschnitt.join('/'));
    if (node.type==='baujournal') pfad.push('Baujournal');
    if (node.type==='projektjournal') pfad.push('Projektjournal');
+   if (node.dateityp!==null) pfad.push(node.dateityp);
    pfad.push(datum + node.title)
    var sPfad = '/' + pfad.join('/');
    sPfad = sPfad.replace(/\/\//g, '/');
