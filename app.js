@@ -148,7 +148,7 @@ var createPath = function(node) {
    if (node.type==='baujournal' || node.type==='ausmasskontrolle') {
       phase = 'Realisierung';
    }
-   else if (nodey.type === 'projektjournal') {
+   else if (node.type === 'projektjournal') {
       phase = 'Projektierung';
    }
    else {
