@@ -92,7 +92,7 @@ var getNodes = function(callback) {
                      }
                      // cleanup
                      for (let i in nodesVid) {
-                        nodesVid[i].title = nodesVid[i].title.replace(/<|>|\?|"|:|\||\\|\/|\*/g,' ');
+                        nodesVid[i].title = nodesVid[i].title.replace(/\<|\>|\?|"|\:|\||\\|\/|\*/g,' ');  // /[^a-zA-Z 0-9äöüÄÖÜ\-]+/g
                         nodesVid[i].terms['Abschnitt'] = termOrder(nodesVid[i].terms['Abschnitt']);
                         nodesVid[i].datum = cleanupDate(nodesVid[i].datum);
                      }
@@ -143,7 +143,6 @@ var createPath = function(node) {
    }
    var datum = node.datum===null?'':node.datum+'_';
 
-   var pfad = [];
    var phase = '';
    if (node.type==='baujournal' || node.type==='ausmasskontrolle') {
       phase = 'Realisierung';
@@ -155,8 +154,11 @@ var createPath = function(node) {
       phase = node.projektphase;
    }
    // Pfad in der Rheinfolge der einzelnen Elemente
+   var pfad = [];
    pfad.push(phase);
    pfad.push(abschnitt.join('/'));
+   if (node.type==='baujournal') pfad.push('Baujournal');
+   if (node.type==='projektjournal') pfad.push('Projektjournal');
    pfad.push(datum + node.title)
    var sPfad = '/' + pfad.join('/');
    sPfad = sPfad.replace(/\/\//g, '/');
