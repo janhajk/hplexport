@@ -134,7 +134,7 @@ var getNodes = function(callback) {
    // Array nach Pfad sortieren
    var sortByPaths = function(nodes, cb) {
       nodes.sort(function(a,b) {
-         return a.path - b.path;
+         return a.path.toLowerCase().localeCompare(b.path.toLowerCase());
       });
       cb(null, nodes);
    };
