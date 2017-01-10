@@ -82,8 +82,8 @@ var getNodes = function(callback) {
                if (files[i].vid in nodes) {
                   nodes[files[i].vid].files.push(files[i]);
                }
-               cb(null,nodes);
             }
+            cb(null, nodes);
          }
       });
    };
