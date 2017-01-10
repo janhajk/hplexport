@@ -103,6 +103,7 @@ var getNodes = function(callback) {
                   if (!terms[i].vname in nodes[terms[i].vid].terms) {
                      nodes[terms[i].vid].terms[terms[i].vname] = [];
                   }
+                  console.log(dump(nodes[terms[i].vid]));
                   nodes[terms[i].vid].terms[terms[i].vname].push(terms[i]);
                }
             }
