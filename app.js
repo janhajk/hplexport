@@ -101,10 +101,10 @@ var getNodes = function(callback) {
             for (let i in terms) {
                if (terms[i].vid in nodes) {
                   if (terms[i].vname === 'Dateityp') {
-                     nodes[terms[i].vid].terms['Dateityp'] = terms[i];
+                     nodes[terms[i].vid].terms['Dateityp'] = terms[i]; // Es gibt nur einen Dateityp
                   }
                   else {
-                     nodes[terms[i].vid].terms['Abschnitt'].push(terms[i]);
+                     nodes[terms[i].vid].terms['Abschnitt'].push(terms[i]); // Mehrere Abschnitte möglich (Unterabschnitte)
                   }
                }
             }
@@ -212,7 +212,7 @@ var createPath = function(node) {
    pfad.push(abschnitt.join('/'));
    if (node.type==='baujournal') pfad.push('Baujournal');
    if (node.type==='projektjournal') pfad.push('Projektjournal');
-   if (node.Dateityp!==null) pfad.push(node.Dateityp);
+   if (node.Dateityp!=='') pfad.push(node.Dateityp.name);
    pfad.push(datum + node.title)
    var sPfad = '/' + pfad.join('/');
    sPfad = sPfad.replace(/\/\//g, '/');
