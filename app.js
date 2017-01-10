@@ -104,6 +104,7 @@ var getNodes = function(callback) {
                      nodes[terms[i].vid].terms[terms[i].vname] = [];
                   }
                   console.log(dump(nodes[terms[i].vid]));
+                  console.log(dump(terms[i]));
                   nodes[terms[i].vid].terms[terms[i].vname].push(terms[i]);
                }
             }
