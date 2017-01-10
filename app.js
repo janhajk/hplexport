@@ -91,13 +91,13 @@ var getNodes = function(callback) {
                      }
                      // Set Terms Hierarchy
                      for (let i in nodesVid) {
-                        nodesVid[i].terms['abschnitt'] = termSetHierarchy(nodesVid[i].terms['abschnitt']);
+                        nodesVid[i].terms['Abschnitt'] = termSetHierarchy(nodesVid[i].terms['Abschnitt']);
                      }
                      console.log(nodesVid);
                      callback(null, nodesVid);
                   }
                });
-               console.log(nodesVid);
+               console.log(JSON.stringify(nodesVid));
                callback(null, nodesVid);
             }
          });
