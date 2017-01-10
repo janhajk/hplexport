@@ -20,7 +20,7 @@ var cQuery = function(fields, select, joins, where) {
 };
 
 
-var getDateien = function(callback) {
+var getNodes = function(callback) {
    var fields = [
       "n.nid",
       "n.vid",
@@ -53,7 +53,7 @@ var getDateien = function(callback) {
          for (let i in nodes) {
             nodesVid[nodes[i].vid] = nodes[i];
             nodesVid[nodes[i].vid].files = [];
-            nodesVid[nodes[i].vid].terms = [];
+            nodesVid[nodes[i].vid].terms = {Abschnitt:[], Dateityp: ''};
          }
          console.log(nodesVid);
          // Alle Files auslesen und danach den Nodes zuteilen
@@ -81,10 +81,18 @@ var getDateien = function(callback) {
                      //if(config.dev) console.log(terms);
                      for (let i in terms) {
                         if (terms[i].vid in nodesVid) {
-                           nodesVid[terms[i].vid].terms.push(terms[i]);
+                           if (terms[i].vname === 'Dateityp') {
+                              nodesVid[terms[i].vid].terms['Dateityp'] = terms[i];
+                           }
+                           else { // Abschnitt TODO: Hierarchie
+                              nodesVid[terms[i].vid].terms[terms[i].vname].push(terms[i]);
+                           }
                         }
                      }
-                     // Add Terms
+                     // Set Terms Hierarchy
+                     for (let i in nodesVid) {
+                        nodesVid[i].terms['abschnitt'] = termSetHierarchy(nodesVid[i].terms['abschnitt']);
+                     }
                      console.log(nodesVid);
                      callback(null, nodesVid);
                   }
@@ -97,8 +105,22 @@ var getDateien = function(callback) {
    });
 };
 
-getDateien(function(err, rows){
-   //console.log(rows);
+var termSetHierarchy = function (terms) {
+   console.log(terms);
+   for (let i in terms) {
+      
+   }
+   return terms;
+};
+
+var createPath = function (node) {
+   
+};
+
+getNodes(function(err, nodes){
+   for (let i in nodes) {
+      let p = createPath(nodes[i]);
+   }
 });
 
 var fileExport  = function(filetree) {
