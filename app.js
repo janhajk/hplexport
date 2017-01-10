@@ -179,7 +179,7 @@ var createPath = function(node) {
 getNodes(function(err, nodes){
    for (let i in nodes) {
       let p = createPath(nodes[i]);
-      console.log(p);
+      console.log('nid:' + nodes[i].nid + ': ' + p);
    }
 });
 
