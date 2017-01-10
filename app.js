@@ -50,7 +50,7 @@ var getNodes = function(callback) {
       connection.query(q, function(err, nodes) {
          if(err) {
             if (config.dev) console.log(err);
-            cb(err)
+            cb(err);
          }
          else {
             cb(null, nodes);
@@ -58,8 +58,8 @@ var getNodes = function(callback) {
       });
    };
 
+   // neues Array mit vid als Keys
    var nodesSort = function(nodes, cb) {
-      // neues Array mit vid als Keys
       var nodesVid = {};
       for (let i in nodes) {
          nodesVid[nodes[i].vid] = nodes[i];
@@ -75,7 +75,7 @@ var getNodes = function(callback) {
       connection.query(q, function(err, files) {
          if(err) {
             if (config.dev) console.log(err);
-            cb(err)
+            cb(err);
          }
          else {
             for (let i in files) {
@@ -93,7 +93,7 @@ var getNodes = function(callback) {
       connection.query(q, function(err, terms) {
          if(err) {
             if (config.dev) console.log(err);
-            cb(err)
+            cb(err);
          }
          else {
             for (let i in terms) {
@@ -127,7 +127,8 @@ var getNodes = function(callback) {
       gTerms,
       cleanup,
    ], function(err, nodes) {
-      callback(err, nodes);
+      if (err) callback(err);
+      callback(null, nodes);
    });
 
 };
