@@ -61,7 +61,7 @@ var getNodes = function(callback) {
 
    // neues Array mit vid als Keys
    var nodesSort = function(nodes, cb) {
-      var nodesVid = {};
+      var nodesVid = [];
       for (let i in nodes) {
          nodesVid[nodes[i].vid] = nodes[i];
          nodesVid[nodes[i].vid].files = [];
@@ -130,7 +130,8 @@ var getNodes = function(callback) {
       };
       cb(null, nodes);
    };
-   
+
+   // Array nach Pfad sortieren
    var sortByPaths = function(nodes, cb) {
       nodes.sort(function(a,b) {
          return a.path - b.path;
