@@ -104,10 +104,10 @@ var getNodes = function(callback) {
                   if (!terms[i].vname in nodes[vid].terms) {
                      nodes[vid].terms[terms[i].vname] = [];
                   }
-                  console.log('vid: ' + vid);
-                  console.log('node: ' + dump(nodes[vid]));
-                  console.log('term: ' + dump(terms[i]));
-                  console.log('Vokabular: ' + terms[i].vname);
+                  //console.log('vid: ' + vid);
+                  //console.log('node: ' + dump(nodes[vid]));
+                  //console.log('term: ' + dump(terms[i]));
+                  //console.log('Vokabular: ' + terms[i].vname);
                   nodes[vid].terms[terms[i].vname].push(terms[i]);
                }
             }
