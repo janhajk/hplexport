@@ -25,6 +25,7 @@ var getNodes = function(callback) {
       "n.nid",
       "n.vid",
       "n.title",
+      "n.type",
       "cd.field_hplbl_dokumentendatum_value as datum",
       "cd.field_hplbl_description_value as description",
       "pp.field_hplbl_projektphase_value as projektphase"
@@ -107,9 +108,9 @@ var getNodes = function(callback) {
 };
 
 
-var cleanupDate = function(date) {
-   //return [new Date(date), ((date.split('T')).shift()).replace(/-/g,'')];
-   return ((date.split('T')).shift()).replace(/-/g,'');
+var cleanupDate = function(datum) {
+   if (date===null) return null;
+   return datum.split('T').shift().replace(/-/g,'');
 };
 
 /*
