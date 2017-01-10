@@ -99,13 +99,16 @@ var getNodes = function(callback) {
          }
          else {
             for (let i in terms) {
-               if (terms[i].vid in nodes) { // wenn vid in node-array als key existiert
-                  if (!terms[i].vname in nodes[terms[i].vid].terms) {
-                     nodes[terms[i].vid].terms[terms[i].vname] = [];
+               let vid = terms[i].vid;
+               if (vid in nodes) { // wenn vid in node-array als key existiert
+                  if (!terms[i].vname in nodes[vid].terms) {
+                     nodes[vid].terms[terms[i].vname] = [];
                   }
-                  console.log(dump(nodes[terms[i].vid]));
-                  console.log(dump(terms[i]));
-                  nodes[terms[i].vid].terms[terms[i].vname].push(terms[i]);
+                  console.log('vid: ' + vid);
+                  console.log('node: ' + dump(nodes[vid]));
+                  console.log('term: ' + dump(terms[i]));
+                  console.log('Vokabular: ' + terms[i].vname);
+                  nodes[vid].terms[terms[i].vname].push(terms[i]);
                }
             }
             cb(null, nodes);
