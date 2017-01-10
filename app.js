@@ -22,6 +22,7 @@ var cQuery = function(fields, select, joins, where) {
 
 
 var getNodes = function(callback) {
+
    // Liest alle Nodes aus der Tabelle nodes ein
    var gNodes = function(cb) {
       var fields = [
@@ -88,6 +89,7 @@ var getNodes = function(callback) {
       });
    };
 
+   // Terms zu nodes hinzufügen
    var gTerms = function(nodes, cb) {
       var q = "SELECT tn.vid,tn.tid,td.name,v.name as vname,th.parent FROM term_node as tn LEFT JOIN term_data as td ON (td.tid=tn.tid) LEFT JOIN vocabulary as v ON (v.vid=td.vid) LEFT JOIN term_hierarchy as th ON (th.tid=td.tid)";
       connection.query(q, function(err, terms) {
@@ -111,6 +113,7 @@ var getNodes = function(callback) {
       });
    };
 
+   // Formatierungen
    var cleanup = function(nodes, cb) {
       for (let i in nodes) {
          nodes[i].title = nodes[i].title.replace(/\<|\>|\?|"|\:|\||\\|\/|\*/g,' ');
@@ -120,12 +123,28 @@ var getNodes = function(callback) {
       cb(null, nodes)
    };
 
+   // Pfad zu node hinzufügen
+   var addPath = function(nodes, cb) {
+      for (let i in nodes) {
+         nodes[i].path = createPath(nodes[i]);
+      };
+      cb(null, nodes);
+   };
+   
+   var sortByPaths = function(nodes, cb) {
+      nodes.sort(function(a,b) {
+         return a.path - b.path;
+      });
+      cb(null, nodes);
+   };
+
    async.waterfall([
       gNodes,
       nodesSort,
       gFiles,
       gTerms,
       cleanup,
+      addPath,
    ], function(err, nodes) {
       if (err) callback(err);
       callback(null, nodes);
