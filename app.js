@@ -137,13 +137,17 @@ var termOrder = function (terms) {
 };
 
 var createPath = function(node) {
-   var phase = [];
+   var abschnitt = [];
    for(let i in node.terms.Abschnitt) {
-      phase.push(node.terms.Abschnitt[i].name);
+      abschnitt.push(node.terms.Abschnitt[i].name);
    }
    var datum = node.datum===null?'':node.datum+'_';
-   var pfad = '/' + [node.projektphase, phase.join('/'), datum + node.title].join('/');
-   return pfad;
+
+   var pfad = [];
+   pfad.push((node.type==='baujournal' || node.type==='ausmasskontrolle')?'Realisierung':(node.type==='projektjournal'?'Projektierung':node.projektphase));
+   pfad.push(abschnitt.join('/'));
+   pfad.push(datum + node.title)
+   return '/' + pfad.join('/');
 };
 
 getNodes(function(err, nodes){
