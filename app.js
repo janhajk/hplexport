@@ -108,7 +108,8 @@ var getNodes = function(callback) {
 
 
 var cleanupDate = function(date) {
-   return [new Date(date), ((date.split('T')).shift()).replace(/-/g,'')];
+   //return [new Date(date), ((date.split('T')).shift()).replace(/-/g,'')];
+   return ((date.split('T')).shift()).replace(/-/g,'');
 };
 
 /*
@@ -138,7 +139,7 @@ var createPath = function(node) {
    for(let i in node.terms.Abschnitt) {
       phase.push(node.terms.Abschnitt[i]);
    }
-   return '/' + [node.projektphase, phase.join('/'), node.datum[1] + '_' + node.title].join('/');
+   return '/' + [node.projektphase, phase.join('/'), node.datum + '_' + node.title].join('/');
 };
 
 getNodes(function(err, nodes){
