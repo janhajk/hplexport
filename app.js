@@ -95,7 +95,7 @@ var getNodes = function(callback) {
                         nodesVid[i].terms['Abschnitt'] = termOrder(nodesVid[i].terms['Abschnitt']);
                         nodesVid[i].datum = cleanupDate(nodesVid[i].datum);
                      }
-                     //console.log(nodesVid);
+                     console.log(nodesVid);
                      callback(null, nodesVid);
                   }
                });
@@ -109,7 +109,7 @@ var getNodes = function(callback) {
 
 
 var cleanupDate = function(datum) {
-   if (date===null) return null;
+   if (datum===null) return null;
    return datum.split('T').shift().replace(/-/g,'');
 };
 
