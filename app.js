@@ -138,7 +138,7 @@ var termOrder = function (terms) {
 var createPath = function(node) {
    var phase = [];
    for(let i in node.terms.Abschnitt) {
-      phase.push(node.terms.Abschnitt[i]);
+      phase.push(node.terms.Abschnitt[i].name);
    }
    var datum = node.datum===null?'':node.datum+'_';
    var pfad = '/' + [node.projektphase, phase.join('/'), datum + node.title].join('/');
