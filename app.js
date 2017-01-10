@@ -108,7 +108,7 @@ var getNodes = function(callback) {
                   //console.log('node: ' + dump(nodes[vid]));
                   //console.log('term: ' + dump(terms[i]));
                   //console.log('Vokabular: ' + terms[i].vname);
-                  terms[i].name = terms[i].name.replace(/\//g,'');
+                  terms[i].name = terms[i].name.replace(/\//g,', ');
                   nodes[vid].terms[terms[i].vname].push(terms[i]);
                }
             }
