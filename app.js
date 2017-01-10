@@ -145,6 +145,7 @@ var getNodes = function(callback) {
       gTerms,
       cleanup,
       addPath,
+      sortByPaths,
    ], function(err, nodes) {
       if (err) callback(err);
       callback(null, nodes);
