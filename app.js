@@ -85,7 +85,7 @@ var getNodes = function(callback) {
                               nodesVid[terms[i].vid].terms['Dateityp'] = terms[i];
                            }
                            else { // Abschnitt TODO: Hierarchie
-                              nodesVid[terms[i].vid].terms[terms[i].vname].push(terms[i]);
+                              nodesVid[terms[i].vid].terms['Abschnitt'].push(terms[i]);
                            }
                         }
                      }
