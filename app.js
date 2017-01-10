@@ -1,6 +1,7 @@
 
 
 var path = require("path");
+var async = require("async");
 var config = require(__dirname + '/config.js');
 
 var mysql = require('mysql');
@@ -21,93 +22,114 @@ var cQuery = function(fields, select, joins, where) {
 
 
 var getNodes = function(callback) {
-   var fields = [
-      "n.nid",
-      "n.vid",
-      "n.title",
-      "n.type",
-      "cd.field_hplbl_dokumentendatum_value as datum",
-      "cd.field_hplbl_description_value as description",
-      "pp.field_hplbl_projektphase_value as projektphase",
-      "bj.field_baujournal_beschreibung_value as baujournalinhalt",
-      "bj.field_baujournaldatum_value as datum_baujournal"
-   ];
-   var select = ["node", "n"];
-   var joins = [
-      ["LEFT", "content_type_datei", "cd", "cd.vid ="+select[1]+".vid"],
-      ["LEFT", "content_field_hplbl_projektphase", "pp", "pp.vid ="+select[1]+".vid"],
-      ["LEFT", "content_type_baujournal", "bj", "bj.vid ="+select[1]+".vid"]
-   ];
-   var where = [
-      "n.type IN ('datei', 'ausmasskontrolle', 'baujournal', 'projektjournal')"
-   ];
-   var q = cQuery(fields, select, joins, where);
-   if (config.dev) console.log(q);
-   // q liest nun erst einmal alle nodes in der aktuellsten version
+   // Liest alle Nodes aus der Tabelle nodes ein
+   var gNodes = function(cb) {
+      var fields = [
+         "n.nid",
+         "n.vid",
+         "n.title",
+         "n.type",
+         "cd.field_hplbl_dokumentendatum_value as datum",
+         "cd.field_hplbl_description_value as description",
+         "pp.field_hplbl_projektphase_value as projektphase",
+         "bj.field_baujournal_beschreibung_value as baujournalinhalt",
+         "bj.field_baujournaldatum_value as datum_baujournal"
+      ];
+      var select = ["node", "n"];
+      var joins = [
+         ["LEFT", "content_type_datei", "cd", "cd.vid ="+select[1]+".vid"],
+         ["LEFT", "content_field_hplbl_projektphase", "pp", "pp.vid ="+select[1]+".vid"],
+         ["LEFT", "content_type_baujournal", "bj", "bj.vid ="+select[1]+".vid"]
+      ];
+      var where = [
+         "n.type IN ('datei', 'ausmasskontrolle', 'baujournal', 'projektjournal')"
+      ];
+      var q = cQuery(fields, select, joins, where);
+      //if (config.dev) console.log(q);
 
-   connection.query(q, function(err, nodes) {
-      if(err) {
-         if (config.dev) console.log(err);
-         callback(err)
-      }
-      else {
-         //if(config.dev) console.log(nodes);
-         // neues Array mit vid als Keys
-         var nodesVid = {};
-         for (let i in nodes) {
-            nodesVid[nodes[i].vid] = nodes[i];
-            nodesVid[nodes[i].vid].files = [];
-            nodesVid[nodes[i].vid].terms = {Abschnitt:[], Dateityp: ''};
+      connection.query(q, function(err, nodes) {
+         if(err) {
+            if (config.dev) console.log(err);
+            cb(err)
          }
-         //console.log(nodesVid);
-         // Alle Files auslesen und danach den Nodes zuteilen
-         var q = "SELECT cf.vid, f.filename, f.filepath FROM files as f LEFT JOIN content_field_hplbl_file as cf ON (cf.field_hplbl_file_fid=f.fid) LEFT JOIN content_field_baujournal_datei as bf ON (bf.field_baujournal_datei_fid=f.fid) WHERE cf.vid IS NOT NULL";
-         connection.query(q, function(err, files) {
-            if(err) {
-               if (config.dev) console.log(err);
-               callback(err)
-            }
-            else {
-               //if(config.dev) console.log(files);
-               for (let i in files) {
-                  if (files[i].vid in nodesVid) {
-                     nodesVid[files[i].vid].files.push(files[i]);
-                  }
+         else {
+            cb(null, nodes);
+         }
+      });
+   };
+
+   var nodesSort = function(nodes, cb) {
+      // neues Array mit vid als Keys
+      var nodesVid = {};
+      for (let i in nodes) {
+         nodesVid[nodes[i].vid] = nodes[i];
+         nodesVid[nodes[i].vid].files = [];
+         nodesVid[nodes[i].vid].terms = {Abschnitt:[], Dateityp: ''};
+      }
+      cb(null, nodesVid);
+   };
+
+   // Alle Files auslesen und danach den Nodes zuteilen
+   var gFiles = function(nodes, cb) {
+      var q = "SELECT cf.vid, f.filename, f.filepath FROM files as f LEFT JOIN content_field_hplbl_file as cf ON (cf.field_hplbl_file_fid=f.fid) LEFT JOIN content_field_baujournal_datei as bf ON (bf.field_baujournal_datei_fid=f.fid) WHERE cf.vid IS NOT NULL";
+      connection.query(q, function(err, files) {
+         if(err) {
+            if (config.dev) console.log(err);
+            cb(err)
+         }
+         else {
+            for (let i in files) {
+               if (files[i].vid in nodes) {
+                  nodes[files[i].vid].files.push(files[i]);
                }
-               // Add Terms
-               var q = "SELECT tn.vid,tn.tid,td.name,v.name as vname,th.parent FROM term_node as tn LEFT JOIN term_data as td ON (td.tid=tn.tid) LEFT JOIN vocabulary as v ON (v.vid=td.vid) LEFT JOIN term_hierarchy as th ON (th.tid=td.tid)";
-               connection.query(q, function(err, terms) {
-                  if(err) {
-                     if (config.dev) console.log(err);
-                     callback(err)
+               cb(null,nodes);
+            }
+         }
+      });
+   };
+
+   var gTerms = function(nodes, cb) {
+      var q = "SELECT tn.vid,tn.tid,td.name,v.name as vname,th.parent FROM term_node as tn LEFT JOIN term_data as td ON (td.tid=tn.tid) LEFT JOIN vocabulary as v ON (v.vid=td.vid) LEFT JOIN term_hierarchy as th ON (th.tid=td.tid)";
+      connection.query(q, function(err, terms) {
+         if(err) {
+            if (config.dev) console.log(err);
+            cb(err)
+         }
+         else {
+            for (let i in terms) {
+               if (terms[i].vid in nodes) {
+                  if (terms[i].vname === 'Dateityp') {
+                     nodes[terms[i].vid].terms['Dateityp'] = terms[i];
                   }
                   else {
-                     //if(config.dev) console.log(terms);
-                     for (let i in terms) {
-                        if (terms[i].vid in nodesVid) {
-                           if (terms[i].vname === 'Dateityp') {
-                              nodesVid[terms[i].vid].terms['Dateityp'] = terms[i];
-                           }
-                           else { // Abschnitt TODO: Hierarchie
-                              nodesVid[terms[i].vid].terms['Abschnitt'].push(terms[i]);
-                           }
-                        }
-                     }
-                     // cleanup
-                     for (let i in nodesVid) {
-                        nodesVid[i].title = nodesVid[i].title.replace(/\<|\>|\?|"|\:|\||\\|\/|\*/g,' ');  // /[^a-zA-Z 0-9äöüÄÖÜ\-]+/g
-                        nodesVid[i].terms['Abschnitt'] = termOrder(nodesVid[i].terms['Abschnitt']);
-                        nodesVid[i].datum = cleanupDate([nodesVid[i].datum, nodesVid[i].datum_baujournal]);
-                     }
-                     //console.log(dump(nodesVid));
-                     callback(null, nodesVid);
+                     nodes[terms[i].vid].terms['Abschnitt'].push(terms[i]);
                   }
-               });
-               callback(null, nodesVid);
+               }
             }
-         });
+            cb(null, nodes);
+         }
+      });
+   };
+
+   var cleanup = function(nodes, cb) {
+      for (let i in nodes) {
+         nodes[i].title = nodes[i].title.replace(/\<|\>|\?|"|\:|\||\\|\/|\*/g,' ');
+         nodes[i].terms['Abschnitt'] = termOrder(nodes[i].terms['Abschnitt']);
+         nodes[i].datum = cleanupDate([nodes[i].datum, nodes[i].datum_baujournal]);
       }
+      cb(null, nodes)
+   };
+
+   async.waterfall([
+      gNodes,
+      nodesSort,
+      gFiles,
+      gTerms,
+      cleanup,
+   ], function(err, nodes) {
+      callback(err, nodes);
    });
+
 };
 
 
