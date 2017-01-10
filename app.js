@@ -92,6 +92,7 @@ var getNodes = function(callback) {
                      }
                      // cleanup
                      for (let i in nodesVid) {
+                        nodesVid[i].title = title.replace(/<|>|\?|"|:|\||\\|\/|\*/g,'');
                         nodesVid[i].terms['Abschnitt'] = termOrder(nodesVid[i].terms['Abschnitt']);
                         nodesVid[i].datum = cleanupDate(nodesVid[i].datum);
                      }
@@ -142,7 +143,6 @@ var createPath = function(node) {
    }
    var datum = node.datum===null?'':node.datum+'_';
    var pfad = '/' + [node.projektphase, phase.join('/'), datum + node.title].join('/');
-   pfad = pfad.replace(/<|>|\?|"|:|\||\\|\/|\*/g,'');
    return pfad;
 };
 
