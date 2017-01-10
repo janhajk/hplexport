@@ -28,12 +28,15 @@ var getNodes = function(callback) {
       "n.type",
       "cd.field_hplbl_dokumentendatum_value as datum",
       "cd.field_hplbl_description_value as description",
-      "pp.field_hplbl_projektphase_value as projektphase"
+      "pp.field_hplbl_projektphase_value as projektphase",
+      "bj.field_baujournal_beschreibung_value as baujournalinhalt",
+      "bj.field_baujournaldatum_value as datum_baujournal"
    ];
    var select = ["node", "n"];
    var joins = [
       ["LEFT", "content_type_datei", "cd", "cd.vid ="+select[1]+".vid"],
-      ["LEFT", "content_field_hplbl_projektphase", "pp", "pp.vid ="+select[1]+".vid"]
+      ["LEFT", "content_field_hplbl_projektphase", "pp", "pp.vid ="+select[1]+".vid"],
+      ["LEFT", "content_type_baujournal", "bj", "bj.vid ="+select[1]+".vid"]
    ];
    var where = [
       "n.type IN ('datei', 'ausmasskontrolle', 'baujournal', 'projektjournal')"
@@ -58,7 +61,7 @@ var getNodes = function(callback) {
          }
          //console.log(nodesVid);
          // Alle Files auslesen und danach den Nodes zuteilen
-         var q = "SELECT cf.vid, f.filename, f.filepath FROM files as f LEFT JOIN content_field_hplbl_file as cf ON (cf.field_hplbl_file_fid=f.fid)";
+         var q = "SELECT cf.vid, f.filename, f.filepath FROM files as f LEFT JOIN content_field_hplbl_file as cf ON (cf.field_hplbl_file_fid=f.fid) LEFT JOIN content_field_baujournal_datei as bf ON (bf.field_baujournal_datei_fid=f.fid) WHERE cf.vid IS NOT NULL";
          connection.query(q, function(err, files) {
             if(err) {
                if (config.dev) console.log(err);
@@ -94,13 +97,12 @@ var getNodes = function(callback) {
                      for (let i in nodesVid) {
                         nodesVid[i].title = nodesVid[i].title.replace(/\<|\>|\?|"|\:|\||\\|\/|\*/g,' ');  // /[^a-zA-Z 0-9äöüÄÖÜ\-]+/g
                         nodesVid[i].terms['Abschnitt'] = termOrder(nodesVid[i].terms['Abschnitt']);
-                        nodesVid[i].datum = cleanupDate(nodesVid[i].datum);
+                        nodesVid[i].datum = cleanupDate([nodesVid[i].datum, nodesVid[i].datum_baujournal]);
                      }
                      //console.log(dump(nodesVid));
                      callback(null, nodesVid);
                   }
                });
-               //console.log(JSON.stringify(nodesVid));
                callback(null, nodesVid);
             }
          });
@@ -110,8 +112,12 @@ var getNodes = function(callback) {
 
 
 var cleanupDate = function(datum) {
-   if (datum===null) return null;
-   return datum.split('T').shift().replace(/-/g,'');
+   if (datum[0]===null) {
+      if (datum[1]!==null) {
+         return datum[1].split('T').shift().replace(/-/g,'');
+      }
+   }
+   return datum[0].split('T').shift().replace(/-/g,'');
 };
 
 /*
