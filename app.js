@@ -25,9 +25,9 @@ var getNodes = function(callback) {
       "n.nid",
       "n.vid",
       "n.title",
-      "cd.field_hplbl_dokumentendatum_value",
-      "cd.field_hplbl_description_value",
-      "pp.field_hplbl_projektphase_value"
+      "cd.field_hplbl_dokumentendatum_value as datum",
+      "cd.field_hplbl_description_value as description",
+      "pp.field_hplbl_projektphase_value as projektphase"
    ];
    var select = ["node", "n"];
    var joins = [
@@ -38,7 +38,7 @@ var getNodes = function(callback) {
       "n.type IN ('datei', 'ausmasskontrolle', 'baujournal', 'projektjournal')"
    ];
    var q = cQuery(fields, select, joins, where);
-   if (config.dev) console.log(q);
+   //if (config.dev) console.log(q);
    // q liest nun erst einmal alle nodes in der aktuellsten version
 
    connection.query(q, function(err, nodes) {
@@ -55,7 +55,7 @@ var getNodes = function(callback) {
             nodesVid[nodes[i].vid].files = [];
             nodesVid[nodes[i].vid].terms = {Abschnitt:[], Dateityp: ''};
          }
-         console.log(nodesVid);
+         //console.log(nodesVid);
          // Alle Files auslesen und danach den Nodes zuteilen
          var q = "SELECT cf.vid, f.filename, f.filepath FROM files as f LEFT JOIN content_field_hplbl_file as cf ON (cf.field_hplbl_file_fid=f.fid)";
          connection.query(q, function(err, files) {
@@ -89,15 +89,16 @@ var getNodes = function(callback) {
                            }
                         }
                      }
-                     // Set Terms Hierarchy
+                     // cleanup
                      for (let i in nodesVid) {
-                        nodesVid[i].terms['Abschnitt'] = termSetHierarchy(nodesVid[i].terms['Abschnitt']);
+                        nodesVid[i].terms['Abschnitt'] = termOrder(nodesVid[i].terms['Abschnitt']);
+                        nodesVid[i].datum = cleanupDate(nodesVid[i].datum);
                      }
-                     console.log(nodesVid);
+                     //console.log(nodesVid);
                      callback(null, nodesVid);
                   }
                });
-               console.log(JSON.stringify(nodesVid));
+               //console.log(JSON.stringify(nodesVid));
                callback(null, nodesVid);
             }
          });
@@ -105,21 +106,45 @@ var getNodes = function(callback) {
    });
 };
 
-var termSetHierarchy = function (terms) {
-   console.log(terms);
-   for (let i in terms) {
-      
-   }
-   return terms;
+
+var cleanupDate = function(date) {
+   return [new Date(date), ((date.split('T')).shift()).replace(/-/g,'')];
 };
 
-var createPath = function (node) {
-   
+/*
+{
+   vid: 5289,
+   tid: 8,
+   name: 'Abschnitt Tunnel',
+   vname: 'Abschnitt',
+   parent: 0
+}
+*/
+var termOrder = function (terms) {
+   var term1 = 0, term2 = null;
+   for (let i in terms) {
+      if (terms[i].parent === 0) {
+         term1 = terms[i];
+      }
+      else {
+         term2 = terms[i];
+      }
+   }
+   return (term2!==null)?[term1, term2]:[term1];
+};
+
+var createPath = function(node) {
+   var phase = [];
+   for(let i in node.terms.Abschnitt) {
+      phase.push(node.terms.Abschnitt[i]);
+   }
+   return '/' + [node.projektphase, phase.join('/'), node.datum[1] + '_' + node.title].join('/');
 };
 
 getNodes(function(err, nodes){
    for (let i in nodes) {
       let p = createPath(nodes[i]);
+      console.log(p);
    }
 });
 
