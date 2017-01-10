@@ -42,7 +42,7 @@ var getNodes = function(callback) {
       "n.type IN ('datei', 'ausmasskontrolle', 'baujournal', 'projektjournal')"
    ];
    var q = cQuery(fields, select, joins, where);
-   //if (config.dev) console.log(q);
+   if (config.dev) console.log(q);
    // q liest nun erst einmal alle nodes in der aktuellsten version
 
    connection.query(q, function(err, nodes) {
