@@ -96,7 +96,7 @@ var getNodes = function(callback) {
                         nodesVid[i].terms['Abschnitt'] = termOrder(nodesVid[i].terms['Abschnitt']);
                         nodesVid[i].datum = cleanupDate(nodesVid[i].datum);
                      }
-                     console.log(dump(nodesVid));
+                     //console.log(dump(nodesVid));
                      callback(null, nodesVid);
                   }
                });
@@ -144,10 +144,25 @@ var createPath = function(node) {
    var datum = node.datum===null?'':node.datum+'_';
 
    var pfad = [];
-   pfad.push((node.type==='baujournal' || node.type==='ausmasskontrolle')?'Realisierung':(node.type==='projektjournal'?'Projektierung':node.projektphase));
+   var phase = '';
+   if (node.type==='baujournal' || node.type==='ausmasskontrolle') {
+      phase = 'Realisierung';
+   }
+   elseif (nodey.type === 'projektjournal') {
+      phase = 'Projektierung';
+   }
+   else {
+      phase = node.projektphase;
+   }
+   // Pfad in der Rheinfolge der einzelnen Elemente
+   pfad.push(phase);
    pfad.push(abschnitt.join('/'));
    pfad.push(datum + node.title)
-   return '/' + pfad.join('/');
+   var sPfad = '/' + pfad.join('/');
+   sPfad = sPfad.replace(/\/\//g, '/');
+   sPfad = sPfad.replace(/\s\s\s/g, ' ');
+   sPfad = sPfad.replace(/\s\s/g, ' ');
+   return sPfad;
 };
 
 getNodes(function(err, nodes){
