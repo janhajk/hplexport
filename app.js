@@ -92,7 +92,7 @@ var getNodes = function(callback) {
                      }
                      // cleanup
                      for (let i in nodesVid) {
-                        nodesVid[i].title = title.replace(/<|>|\?|"|:|\||\\|\/|\*/g,'');
+                        nodesVid[i].title = nodesVid[i].title.replace(/<|>|\?|"|:|\||\\|\/|\*/g,' ');
                         nodesVid[i].terms['Abschnitt'] = termOrder(nodesVid[i].terms['Abschnitt']);
                         nodesVid[i].datum = cleanupDate(nodesVid[i].datum);
                      }
