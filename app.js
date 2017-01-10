@@ -116,6 +116,9 @@ var cleanupDate = function(datum) {
       if (datum[1]!==null) {
          return datum[1].split('T').shift().replace(/-/g,'');
       }
+      else {
+         return null;
+      }
    }
    return datum[0].split('T').shift().replace(/-/g,'');
 };
