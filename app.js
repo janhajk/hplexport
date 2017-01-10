@@ -65,7 +65,7 @@ var getNodes = function(callback) {
       for (let i in nodes) {
          nodesVid[nodes[i].vid] = nodes[i];
          nodesVid[nodes[i].vid].files = [];
-         nodesVid[nodes[i].vid].terms = {Abschnitt:[], Dateityp: ''};
+         nodesVid[nodes[i].vid].terms = {Dateityp:[], Abschnitt:[]};
       }
       cb(null, nodesVid);
    };
@@ -99,13 +99,11 @@ var getNodes = function(callback) {
          }
          else {
             for (let i in terms) {
-               if (terms[i].vid in nodes) {
-                  if (terms[i].vname === 'Dateityp') {
-                     nodes[terms[i].vid].terms['Dateityp'] = terms[i]; // Es gibt nur einen Dateityp
+               if (terms[i].vid in nodes) { // wenn vid in node-array als key existiert
+                  if (!terms[i].vname in nodes[terms[i].vid].terms) {
+                     nodes[terms[i].vid].terms[terms[i].vname] = [];
                   }
-                  else {
-                     nodes[terms[i].vid].terms['Abschnitt'].push(terms[i]); // Mehrere Abschnitte möglich (Unterabschnitte)
-                  }
+                  nodes[terms[i].vid].terms[terms[i].vname].push(terms[i]);
                }
             }
             cb(null, nodes);
@@ -212,8 +210,7 @@ var createPath = function(node) {
    pfad.push(abschnitt.join('/'));
    if (node.type==='baujournal') pfad.push('Baujournal');
    if (node.type==='projektjournal') pfad.push('Projektjournal');
-   console.log(dump(node.Dateityp));
-   if (node.Dateityp!=='') pfad.push(node.Dateityp.name);
+   if (node.terms.Dateityp.length) pfad.push(node.terms.Dateityp[0].name);
    pfad.push(datum + node.title)
    var sPfad = '/' + pfad.join('/');
    sPfad = sPfad.replace(/\/\//g, '/');
