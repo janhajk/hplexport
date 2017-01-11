@@ -1,8 +1,9 @@
-
-
+var AWS = require('aws-sdk');
 var path = require("path");
+var fs = require("fs");
 var async = require("async");
 var config = require(__dirname + '/config.js');
+
 
 var mysql = require('mysql');
 
@@ -231,6 +232,47 @@ getNodes(function(err, nodes){
       console.log('nid:' + nodes[i].nid + ': ' + p);
    }
 });
+
+var copyFile2S3 = function(filepath, s3path) {
+   var fileBuffer = fs.readFileSync(filepath);
+   var metaData = getContentTypeByFile(filepath);
+   var s3 = new AWS.S3({apiVersion: '2006-03-01'});
+   var params = {
+      Bucket: config.s3.bucket,
+      Key: config.s3.key,
+      ACL: 'private',
+      Body: new Buffer('...') || 'STRING_VALUE' || streamObject,
+      CacheControl: 'STRING_VALUE',
+      ContentDisposition: 'STRING_VALUE',
+      ContentEncoding: 'STRING_VALUE',
+      ContentLanguage: 'STRING_VALUE',
+      ContentLength: 0,
+      ContentMD5: 'STRING_VALUE',
+      ContentType: 'STRING_VALUE',
+      Expires: new Date || 'Wed Dec 31 1969 16:00:00 GMT-0800 (PST)' || 123456789,
+      GrantFullControl: 'STRING_VALUE',
+      GrantRead: 'STRING_VALUE',
+      GrantReadACP: 'STRING_VALUE',
+      GrantWriteACP: 'STRING_VALUE',
+      Metadata: {
+         someKey: 'STRING_VALUE',
+         /* anotherKey: ... */
+      },
+      RequestPayer: 'requester',
+      SSECustomerAlgorithm: 'STRING_VALUE',
+      SSECustomerKey: new Buffer('...') || 'STRING_VALUE',
+      SSECustomerKeyMD5: 'STRING_VALUE',
+      SSEKMSKeyId: 'STRING_VALUE',
+      ServerSideEncryption: 'AES256 | aws:kms',
+      StorageClass: 'STANDARD | REDUCED_REDUNDANCY | STANDARD_IA',
+      Tagging: 'STRING_VALUE',
+      WebsiteRedirectLocation: 'STRING_VALUE'
+   };
+   s3.putObject(params, function(err, data) {
+      if(err) console.log(err, err.stack); // an error occurred
+      else console.log(data); // successful response
+   });
+};
 
 var fileExport  = function(filetree) {
    var s3 = require('s3');
