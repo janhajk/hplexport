@@ -228,11 +228,15 @@ var createPath = function(node) {
 };
 
 getNodes(function(err, nodes){
-   var s = nodes.shift();
-   console.log('uploading sample file:');
-   console.log(dump(s));
-   for (let i in s.files) {
-      copyFile2S3(s.files[i].filepath, s.path + '/' + s.files[i].filename);
+   var count = 0;
+   for (let i in nodes) {
+      let s = nodes[i];
+      console.log('uploading sample file:');
+      console.log(dump(s));
+      for (let f in s.files) {
+         copyFile2S3(s.files[f].filepath, s.path + '/' + s.files[f].filename);
+      }
+      if (count > 100) break;
    }
 });
 
