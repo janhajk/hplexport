@@ -229,19 +229,29 @@ var createPath = function(node) {
 
 getNodes(function(err, nodes){
    var count = 0;
+   var files = [];
    for (let i in nodes) {
       let s = nodes[i];
       console.log('uploading sample file:');
       console.log(dump(s));
       for (let f in s.files) {
-         copyFile2S3(s.files[f].filepath, s.path + '/' + s.files[f].filename);
+         files.push([s.files[f].filepath, s.path + '/' + s.files[f].filename]);
       }
+      count++;
       if (count > 100) break;
    }
+   async.each(files, function(source, dest, callback){
+      copyFile2S3(source, dest, callback);
+   }, function(err) {
+      if( err ) {
+         console.log('A file failed to process');
+      } else {
+         console.log('All files have been processed successfully');
+      }});
 });
 
 
-var copyFile2S3 = function(localpath, s3path) {
+var copyFile2S3 = function(localpath, s3path, callback) {
    var fileBuffer = fs.readFileSync(localpath);
    var contentType = mime.lookup(localpath);
    var s3 = new AWS.S3({
@@ -260,6 +270,7 @@ var copyFile2S3 = function(localpath, s3path) {
    s3.putObject(params, function(err, data) {
       if(err) console.log(err, err.stack); // an error occurred
       else console.log(data); // successful response
+      callback();
    });
 };
 
