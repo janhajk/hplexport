@@ -1,20 +1,34 @@
-var AWS = require('aws-sdk'); var path = require("path"); var fs = require("fs"); var async = require("async"); var mime = require("mime"); var 
-config = require(__dirname + '/config.js'); AWS.config({
+var AWS = require('aws-sdk');
+var path = require("path");
+var fs = require("fs");
+var async = require("async");
+var mime = require("mime");
+var config = require(__dirname + '/config.js');
+
+AWS.config({
   accessKeyId: config.s3.key, secretAccessKey: config.s3.secret, region: config.s3.region
 });
-var mysql = require('mysql'); var connection = mysql.createConnection({
+
+
+var mysql = require('mysql');
+
+var connection = mysql.createConnection({
   host: 'localhost',
   user: config.sql.user,
   password: config.sql.password,
   database: config.sql.database
 });
+
 var cQuery = function(fields, select, joins, where) {
    for (let i in joins) {
       joins[i] = joins[i][0] + " JOIN " + joins[i][1] + " AS " + joins[i][2] + " ON (" + joins[i][3] + ")";
    }
    return "SELECT " + fields.join(",") + " FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ");
 };
+
+
 var getNodes = function(callback) {
+
    // Liest alle Nodes aus der Tabelle nodes ein
    var gNodes = function(cb) {
       var fields = [
@@ -39,6 +53,7 @@ var getNodes = function(callback) {
       ];
       var q = cQuery(fields, select, joins, where);
       //if (config.dev) console.log(q);
+
       connection.query(q, function(err, nodes) {
          if(err) {
             if (config.dev) console.log(err);
@@ -49,6 +64,7 @@ var getNodes = function(callback) {
          }
       });
    };
+
    // neues Array mit vid als Keys
    var nodesSort = function(nodes, cb) {
       var nodesVid = [];
@@ -59,10 +75,10 @@ var getNodes = function(callback) {
       }
       cb(null, nodesVid);
    };
+
    // Alle Files auslesen und danach den Nodes zuteilen
    var gFiles = function(nodes, cb) {
-      var q = "SELECT cf.vid, f.filename, f.filepath FROM files as f LEFT JOIN content_field_hplbl_file as cf ON (cf.field_hplbl_file_fid=f.fid) 
-LEFT JOIN content_field_baujournal_datei as bf ON (bf.field_baujournal_datei_fid=f.fid) WHERE cf.vid IS NOT NULL";
+      var q = "SELECT cf.vid, f.filename, f.filepath FROM files as f LEFT JOIN content_field_hplbl_file as cf ON (cf.field_hplbl_file_fid=f.fid) LEFT JOIN content_field_baujournal_datei as bf ON (bf.field_baujournal_datei_fid=f.fid) WHERE cf.vid IS NOT NULL";
       connection.query(q, function(err, files) {
          if(err) {
             if (config.dev) console.log(err);
@@ -78,10 +94,10 @@ LEFT JOIN content_field_baujournal_datei as bf ON (bf.field_baujournal_datei_fid
          }
       });
    };
+
    // Terms zu nodes hinzufügen
    var gTerms = function(nodes, cb) {
-      var q = "SELECT tn.vid,tn.tid,td.name,v.name as vname,th.parent FROM term_node as tn LEFT JOIN term_data as td ON (td.tid=tn.tid) LEFT JOIN 
-vocabulary as v ON (v.vid=td.vid) LEFT JOIN term_hierarchy as th ON (th.tid=td.tid)";
+      var q = "SELECT tn.vid,tn.tid,td.name,v.name as vname,th.parent FROM term_node as tn LEFT JOIN term_data as td ON (td.tid=tn.tid) LEFT JOIN vocabulary as v ON (v.vid=td.vid) LEFT JOIN term_hierarchy as th ON (th.tid=td.tid)";
       connection.query(q, function(err, terms) {
          if(err) {
             if (config.dev) console.log(err);
@@ -106,6 +122,7 @@ vocabulary as v ON (v.vid=td.vid) LEFT JOIN term_hierarchy as th ON (th.tid=td.t
          }
       });
    };
+
    // Formatierungen
    var cleanup = function(nodes, cb) {
       for (let i in nodes) {
@@ -115,6 +132,7 @@ vocabulary as v ON (v.vid=td.vid) LEFT JOIN term_hierarchy as th ON (th.tid=td.t
       }
       cb(null, nodes)
    };
+
    // Pfad zu node hinzufügen
    var addPath = function(nodes, cb) {
       for (let i in nodes) {
@@ -122,6 +140,7 @@ vocabulary as v ON (v.vid=td.vid) LEFT JOIN term_hierarchy as th ON (th.tid=td.t
       };
       cb(null, nodes);
    };
+
    // Array nach Pfad sortieren
    var sortByPaths = function(nodes, cb) {
       nodes.sort(function(a,b) {
@@ -129,6 +148,7 @@ vocabulary as v ON (v.vid=td.vid) LEFT JOIN term_hierarchy as th ON (th.tid=td.t
       });
       cb(null, nodes);
    };
+
    async.waterfall([
       gNodes,
       nodesSort,
@@ -141,7 +161,10 @@ vocabulary as v ON (v.vid=td.vid) LEFT JOIN term_hierarchy as th ON (th.tid=td.t
       if (err) callback(err);
       callback(null, nodes);
    });
+
 };
+
+
 var cleanupDate = function(datum) {
    if (datum[0]===null) {
       if (datum[1]!==null) {
@@ -153,14 +176,17 @@ var cleanupDate = function(datum) {
    }
    return datum[0].split('T').shift().replace(/-/g,'');
 };
-/* {
+
+/*
+{
    vid: 5289,
    tid: 8,
    name: 'Abschnitt Tunnel',
    vname: 'Abschnitt',
    parent: 0
 }
-*/ var termOrder = function (terms) {
+*/
+var termOrder = function (terms) {
    var term1 = 0, term2 = null;
    for (let i in terms) {
       if (terms[i].parent === 0) {
@@ -172,12 +198,14 @@ var cleanupDate = function(datum) {
    }
    return (term2!==null)?[term1, term2]:[term1];
 };
+
 var createPath = function(node) {
    var abschnitt = [];
    for(let i in node.terms.Abschnitt) {
       abschnitt.push(node.terms.Abschnitt[i].name);
    }
    var datum = node.datum===null?'':node.datum+'_';
+
    var phase = '';
    if (node.type==='baujournal' || node.type==='ausmasskontrolle') {
       phase = 'Realisierung';
@@ -202,12 +230,15 @@ var createPath = function(node) {
    sPfad = sPfad.replace(/\s\s/g, ' ');
    return sPfad;
 };
+
 getNodes(function(err, nodes){
    var s = nodes.shift();
    console.log('uploading sample file:');
    console.log(dump(s));
    copyFile2S3(s.files[0].filepath, s.path);
 });
+
+
 var copyFile2S3 = function(localpath, s3path) {
    var fileBuffer = fs.readFileSync(localpath);
    var contentType = mime.lookup(localpath);
@@ -226,23 +257,25 @@ var copyFile2S3 = function(localpath, s3path) {
       else console.log(data); // successful response
    });
 };
+
 /**
  * Function : dump()
  * Arguments: The data - array,hash(associative array),object
- * The level - OPTIONAL
- * Returns : The textual representation of the array.
+ *    The level - OPTIONAL
+ * Returns  : The textual representation of the array.
  * This function was inspired by the print_r function of PHP.
  * This will accept some data as the argument and return a
  * text that will be a more readable version of the
  * array/hash/object that is given.
  * Docs: http://www.openjs.com/scripts/others/dump_function_php_print_r.php
- */ var dump = function(arr, level) {
+ */
+var dump = function(arr, level) {
    var dumped_text = "";
    if(!level) level = 0;
    //The padding given at the beginning of the line.
    var level_padding = "";
-   for(var j = 0; j < level + 1; j++) level_padding += " ";
-   if(typeof(arr) == 'object') { //Array/Hashes/Objects
+   for(var j = 0; j < level + 1; j++) level_padding += "    ";
+   if(typeof(arr) == 'object') { //Array/Hashes/Objects 
       for(var item in arr) {
          var value = arr[item];
          if(typeof(value) == 'object') { //If it is an array,
