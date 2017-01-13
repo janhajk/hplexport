@@ -5,7 +5,7 @@ var async = require("async");
 var mime = require("mime");
 var config = require(__dirname + '/config.js');
 
-AWS.config({
+AWS.Config({
   accessKeyId: config.s3.key, secretAccessKey: config.s3.secret, region: config.s3.region
 });
 
