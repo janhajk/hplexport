@@ -220,7 +220,7 @@ var createPath = function(node) {
    if (node.type==='projektjournal') pfad.push('Projektjournal');
    if (node.terms.Dateityp.length) pfad.push(node.terms.Dateityp[0].name);
    pfad.push(datum + node.title)
-   var sPfad = '/' + pfad.join('/');
+   var sPfad = pfad.join('/');
    sPfad = sPfad.replace(/\/\//g, '/');
    sPfad = sPfad.replace(/\s\s\s/g, ' ');
    sPfad = sPfad.replace(/\s\s/g, ' ');
@@ -231,7 +231,9 @@ getNodes(function(err, nodes){
    var s = nodes.shift();
    console.log('uploading sample file:');
    console.log(dump(s));
-   copyFile2S3(s.files[0].filepath, s.path);
+   for (let i in s.files) {
+      copyFile2S3(s.files[i].filepath, s.path + '/' + s.files[].filename);
+   }
 });
 
 
