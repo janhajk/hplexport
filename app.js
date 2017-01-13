@@ -240,10 +240,10 @@ getNodes(function(err, nodes){
       count++;
       if (count > 100) break;
    }
-   async.each(files, function(source, dest, callback){
-      console.log('Copy file: ' + source);
-      console.log('to:        ' + dest);
-      copyFile2S3(source, dest, callback);
+   async.each(files, function(f, callback){
+      console.log('Copy file: ' + f[0]);
+      console.log('to:        ' + f[1]);
+      copyFile2S3(f[0], f[1], callback);
    }, function(err) {
       if( err ) {
          console.log('A file failed to process');
