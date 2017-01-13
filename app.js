@@ -232,7 +232,7 @@ getNodes(function(err, nodes){
    console.log('uploading sample file:');
    console.log(dump(s));
    for (let i in s.files) {
-      copyFile2S3(s.files[i].filepath, s.path + '/' + s.files[].filename);
+      copyFile2S3(s.files[i].filepath, s.path + '/' + s.files[i].filename);
    }
 });
 
