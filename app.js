@@ -238,11 +238,14 @@ getNodes(function(err, nodes){
 var copyFile2S3 = function(localpath, s3path) {
    var fileBuffer = fs.readFileSync(localpath);
    var contentType = mime.lookup(localpath);
-   var s3 = new AWS.S3({apiVersion: '2006-03-01'});
+   var s3 = new AWS.S3({
+      apiVersion: '2006-03-01',
+      accessKeyId: config.s3.key,
+      secretAccessKey: config.s3.secret,
+      region: config.s3.region
+   });
    var params = {
       Bucket: config.s3.bucket,
-      accessKeyID: config.s3.key,
-      secretAccessKey: config.s3.secret,
       Key: s3path,
       ACL: 'private',
       Body: fileBuffer,
