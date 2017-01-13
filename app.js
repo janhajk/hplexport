@@ -241,6 +241,8 @@ getNodes(function(err, nodes){
       if (count > 100) break;
    }
    async.each(files, function(source, dest, callback){
+      console.log('Copy file: ' + source);
+      console.log('to:        ' + dest);
       copyFile2S3(source, dest, callback);
    }, function(err) {
       if( err ) {
