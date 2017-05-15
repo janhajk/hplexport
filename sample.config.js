@@ -11,3 +11,5 @@ exports.s3 = {
 exports.port = 1341;
 
 exports.dev = true;
+
+exports.test = true;

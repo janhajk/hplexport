@@ -19,7 +19,8 @@ var cQuery = function(fields, select, joins, where) {
    for (let i in joins) {
       joins[i] = joins[i][0] + " JOIN " + joins[i][1] + " AS " + joins[i][2] + " ON (" + joins[i][3] + ")";
    }
-   return "SELECT " + fields.join(",") + " FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + " WHERE " + where.join(" AND ");
+   var where = where!==undefined&&where instanceof Array&&where.length?" WHERE " + where.join(" AND "):"";
+   return "SELECT " + fields.join(",") + " FROM " + select[0] + " AS " + select[1] + " " + joins.join(" ") + where;
 };
 
 
@@ -74,7 +75,20 @@ var getNodes = function(callback) {
 
    // Alle Files auslesen und danach den Nodes zuteilen
    var gFiles = function(nodes, cb) {
-      var q = "SELECT cf.vid, f.filename, f.filepath FROM files as f LEFT JOIN content_field_hplbl_file as cf ON (cf.field_hplbl_file_fid=f.fid) LEFT JOIN content_field_baujournal_datei as bf ON (bf.field_baujournal_datei_fid=f.fid) WHERE cf.vid IS NOT NULL";
+      var fields = [
+         'cf.vid',
+         'f.filename',
+         'f.filepath'
+      ];
+      var select = ["files", "f"];
+      var joins = [
+         ["LEFT", "content_field_hplbl_file", "cf", "cf.field_hplbl_file_fid="+select[1]+".fid"],
+         ["LEFT", "content_field_baujournal_datei", "bf", "bf.field_baujournal_datei_fid="+select[1]+".fid"]
+      ];
+      var where = [
+         "cf.vid IS NOT NULL"
+      ];
+      var q = cQuery(fields, select, joins, where);
       connection.query(q, function(err, files) {
          if(err) {
             if (config.dev) console.log(err);
@@ -93,7 +107,20 @@ var getNodes = function(callback) {
 
    // Terms zu nodes hinzufügen
    var gTerms = function(nodes, cb) {
-      var q = "SELECT tn.vid,tn.tid,td.name,v.name as vname,th.parent FROM term_node as tn LEFT JOIN term_data as td ON (td.tid=tn.tid) LEFT JOIN vocabulary as v ON (v.vid=td.vid) LEFT JOIN term_hierarchy as th ON (th.tid=td.tid)";
+      var fields = [
+         'tn.vid',
+         'tn.tid',
+         'td.name',
+         'v.name AS vname',
+         'th.parent'
+      ];
+      var select = ["term_node", "tn"];
+      var joins = [
+         ["LEFT", "term_data", "td", "td.tid=tn.tid"],
+         ["LEFT", "vocabulary", "v", "v.vid=td.vid"],
+         ["LEFT", "term_hierarchy", "th", "th.tid=td.tid"]
+      ];
+      var q = cQuery(fields, select, joins);
       connection.query(q, function(err, terms) {
          if(err) {
             if (config.dev) console.log(err);
@@ -238,9 +265,10 @@ getNodes(function(err, nodes){
          files.push([s.files[f].filepath, s.path + '/' + s.files[f].filename]);
       }
       count++;
-      if (count > 100) break;
+      // For Testing only export first 100 nodes
+      if (config.test && count > 100) break;
    }
-   async.each(files, function(f, callback){
+   async.eachLimit(files, 20, function(f, callback){
       console.log('Copy file: ' + f[0]);
       console.log('to:        ' + f[1]);
       copyFile2S3(f[0], f[1], callback);
@@ -260,7 +288,9 @@ var copyFile2S3 = function(localpath, s3path, callback) {
       apiVersion: '2006-03-01',
       accessKeyId: config.s3.key,
       secretAccessKey: config.s3.secret,
-      region: config.s3.region
+      region: config.s3.region,
+      s3BucketEndpoint: true,
+      endpoint: "http://" + config.s3.bucket + ".s3.amazonaws.com"
    });
    var params = {
       Bucket: config.s3.bucket,
