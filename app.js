@@ -282,37 +282,35 @@ getNodes(function(err, nodes){
 
 
 var copyFile2S3 = function(localpath, s3path, callback) {
-   if (fs.existsSync(localpath)) {
-      var fileBuffer = fs.readFileSync(localpath);
-   }
-   else {
-      fs.appendFile('error.log', 'File does not exist: ' + localpath, function (err) {
+   if (!fs.existsSync(localpath)) {
+      fs.appendFile('error.log', 'File does not exist: ' + localpath + "\n", function (err) {
          if (err) throw err;
          callback();
-         return;
       });
    }
-   var contentType = mime.lookup(localpath);
-   var s3 = new AWS.S3({
-      apiVersion: '2006-03-01',
-      accessKeyId: config.s3.key,
-      secretAccessKey: config.s3.secret,
-      region: config.s3.region,
-      s3BucketEndpoint: true,
-      endpoint: "http://" + config.s3.bucket + ".s3.amazonaws.com"
-   });
-   var params = {
-      Bucket: config.s3.bucket,
-      Key: s3path,
-      ACL: 'private',
-      Body: fileBuffer,
-      ContentType: contentType,
-   };
-   s3.putObject(params, function(err, data) {
-      if(err) console.log(err, err.stack); // an error occurred
-      else console.log(data); // successful response
-      callback();
-   });
+   else {
+      var contentType = mime.lookup(localpath);
+      var s3 = new AWS.S3({
+         apiVersion: '2006-03-01',
+         accessKeyId: config.s3.key,
+         secretAccessKey: config.s3.secret,
+         region: config.s3.region,
+         s3BucketEndpoint: true,
+         endpoint: "http://" + config.s3.bucket + ".s3.amazonaws.com"
+      });
+      var params = {
+         Bucket: config.s3.bucket,
+         Key: s3path,
+         ACL: 'private',
+         Body: fileBuffer,
+         ContentType: contentType,
+      };
+      s3.putObject(params, function(err, data) {
+         if(err) console.log(err, err.stack); // an error occurred
+         else console.log(data); // successful response
+         callback();
+      });
+   }
 };
 
 /**
