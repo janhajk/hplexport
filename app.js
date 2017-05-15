@@ -282,7 +282,16 @@ getNodes(function(err, nodes){
 
 
 var copyFile2S3 = function(localpath, s3path, callback) {
-   var fileBuffer = fs.readFileSync(localpath);
+   if (fs.existsSync(localpath)) {
+      var fileBuffer = fs.readFileSync(localpath);
+   }
+   else {
+      fs.appendFile('error.log', 'File does not exist: ' + localpath, function (err) {
+         if (err) throw err;
+         callback();
+         return;
+      });
+   }
    var contentType = mime.lookup(localpath);
    var s3 = new AWS.S3({
       apiVersion: '2006-03-01',
