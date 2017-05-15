@@ -289,6 +289,7 @@ var copyFile2S3 = function(localpath, s3path, callback) {
       });
    }
    else {
+      var fileBuffer = fs.readFileSync(localpath);
       var contentType = mime.lookup(localpath);
       var s3 = new AWS.S3({
          apiVersion: '2006-03-01',
