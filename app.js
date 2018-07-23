@@ -273,23 +273,28 @@ getNodes(function(err, nodes){
       // For Testing only export first 100 nodes
       if (config.test && count > 100) break;
    }
-   
+
    // Wait before continue
    console.log("Writing " + files.length + " files from " + count + ' nodes... in 10 Seconds!');
    var waitTill = new Date(new Date().getTime() + 10 * 1000);
    while(waitTill > new Date()){}
+   var totalFiles = files.length;
+   count = 0;
    async.eachLimit(files, config.max_file_count_write, function(f, callback){
+      count++;
+      console.log(count + "/" + totalFiles);
       console.log('Copy file: ' + f[0]);
       console.log('to:        ' + f[1]);
-      
+
+      // Skip files > 120MB; gave an error on Memory too small
       var stats = fs.statSync(f[0]);
       if (stats.size / 1000000.0 < 120) {
-
       copyFile2S3(f[0], f[1], callback);
       }
       else {
          console.log("File will not be copied. Too big!");
       }
+
    }, function(err) {
       if( err ) {
          console.log('A file failed to process');
