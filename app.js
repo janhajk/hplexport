@@ -273,6 +273,11 @@ getNodes(function(err, nodes){
       // For Testing only export first 100 nodes
       if (config.test && count > 100) break;
    }
+   
+   // Wait before continue
+   console.log("Writing " + files.length + " files from " + count + ' nodes... in 10 Seconds!');
+   var waitTill = new Date(new Date().getTime() + 10 * 1000);
+   while(waitTill > new Date()){}
    async.eachLimit(files, 20, function(f, callback){
       console.log('Copy file: ' + f[0]);
       console.log('to:        ' + f[1]);
