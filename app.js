@@ -240,7 +240,7 @@ var createPath = function(node) {
       phase = 'Projektierung';
    }
    else {
-      phase = node.projektphase;
+      phase = 'Vorprojekt';
    }
    // Pfad in der Rheinfolge der einzelnen Elemente
    var pfad = [];
