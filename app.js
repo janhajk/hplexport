@@ -1,8 +1,17 @@
+/*
+ * Kopiert alle Nodes vom Typ:
+ *   - datei
+ *   - baujournal
+ *   - projektjournal
+ * 
+ */
+
+
 var AWS = require('aws-sdk');
-var path = require("path");
-var fs = require("fs");
-var async = require("async");
-var mime = require("mime");
+var path = require('path');
+var fs = require('fs');
+var async = require('async');
+var mime = require('mime');
 var config = require(__dirname + '/config.js');
 
 
@@ -33,23 +42,17 @@ var getNodes = function(callback) {
          "n.vid",
          "n.title",
          "n.type",
-         "cd.field_hplbl_dokumentendatum_value as datum",
-         "cd.field_hplbl_description_value as description",
-         "pp.field_hplbl_projektphase_value as projektphase",
-         "bj.field_baujournal_beschreibung_value as baujournalinhalt",
-         "bj.field_baujournaldatum_value as datum_baujournal"
+         "cd.field_dokumentendatum_value as datum"
       ];
       var select = ["node", "n"];
       var joins = [
-         ["LEFT", "content_type_datei", "cd", "cd.vid ="+select[1]+".vid"],
-         ["LEFT", "content_field_hplbl_projektphase", "pp", "pp.vid ="+select[1]+".vid"],
-         ["LEFT", "content_type_baujournal", "bj", "bj.vid ="+select[1]+".vid"]
+         ["LEFT", "content_type_dossier", "cd", "cd.vid ="+select[1]+".vid"]
       ];
       var where = [
-         "n.type IN ('datei', 'baujournal', 'projektjournal')" // Ausmasskontrolle
+         "n.type IN ('datei')" // Ausmasskontrolle
       ];
       var q = cQuery(fields, select, joins, where);
-      //if (config.dev) console.log(q);
+      if (config.dev) console.log(q);
 
       connection.query(q, function(err, nodes) {
          if(err) {
@@ -68,7 +71,7 @@ var getNodes = function(callback) {
       for (let i in nodes) {
          nodesVid[nodes[i].vid] = nodes[i];
          nodesVid[nodes[i].vid].files = [];
-         nodesVid[nodes[i].vid].terms = {Dateityp:[], Abschnitt:[]};
+         nodesVid[nodes[i].vid].terms = {Dateityp:[], Projektgebiet:[], Fachgebiet:[]};
       }
       cb(null, nodesVid);
    };
@@ -82,8 +85,7 @@ var getNodes = function(callback) {
       ];
       var select = ["files", "f"];
       var joins = [
-         ["LEFT", "content_field_hplbl_file", "cf", "cf.field_hplbl_file_fid="+select[1]+".fid"],
-         ["LEFT", "content_field_baujournal_datei", "bf", "bf.field_baujournal_datei_fid="+select[1]+".fid"]
+         ["LEFT", "content_field_dateien", "cf", "cf.field_dateien_fid="+select[1]+".fid"],
       ];
       var where = [
          "cf.vid IS NOT NULL"
@@ -150,8 +152,8 @@ var getNodes = function(callback) {
    var cleanup = function(nodes, cb) {
       for (let i in nodes) {
          nodes[i].title = nodes[i].title.replace(/\<|\>|\?|"|\:|\||\\|\/|\*/g,' ');
-         nodes[i].terms['Abschnitt'] = termOrder(nodes[i].terms['Abschnitt']);
-         nodes[i].datum = cleanupDate([nodes[i].datum, nodes[i].datum_baujournal]);
+         nodes[i].terms['Projektgebiet'] = termOrder(nodes[i].terms['Projektgebiet']);
+         nodes[i].datum = cleanupDate([nodes[i].datum]);
       }
       cb(null, nodes)
    };
@@ -172,6 +174,7 @@ var getNodes = function(callback) {
       cb(null, nodes);
    };
 
+   // Run Waterfall with above functions
    async.waterfall([
       gNodes,
       nodesSort,
@@ -251,9 +254,11 @@ var createPath = function(node) {
    sPfad = sPfad.replace(/\/\//g, '/');
    sPfad = sPfad.replace(/\s\s\s/g, ' ');
    sPfad = sPfad.replace(/\s\s/g, ' ');
-   return sPfad;
+   return sPfad;filf
 };
 
+
+// Execution of script
 getNodes(function(err, nodes){
    var count = 0;
    var files = [];
