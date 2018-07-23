@@ -278,7 +278,7 @@ getNodes(function(err, nodes){
    console.log("Writing " + files.length + " files from " + count + ' nodes... in 10 Seconds!');
    var waitTill = new Date(new Date().getTime() + 10 * 1000);
    while(waitTill > new Date()){}
-   async.eachLimit(files, 20, function(f, callback){
+   async.eachLimit(files, config.max_file_count_write, function(f, callback){
       console.log('Copy file: ' + f[0]);
       console.log('to:        ' + f[1]);
       copyFile2S3(f[0], f[1], callback);
