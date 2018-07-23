@@ -227,8 +227,8 @@ var termOrder = function (terms) {
 
 var createPath = function(node) {
    var abschnitt = [];
-   for(let i in node.terms.Abschnitt) {
-      abschnitt.push(node.terms.Abschnitt[i].name);
+   for(let i in node.terms.Projektgebiet) {
+      abschnitt.push(node.terms.Projektgebiet[i].name);
    }
    var datum = node.datum===null?'':node.datum+'_';
 
