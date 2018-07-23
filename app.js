@@ -49,7 +49,7 @@ var getNodes = function(callback) {
          ["LEFT", "content_type_dossier", "cd", "cd.vid ="+select[1]+".vid"]
       ];
       var where = [
-         "n.type IN ('datei')" // Ausmasskontrolle
+         "n.type IN ('dossier')" // Ausmasskontrolle
       ];
       var q = cQuery(fields, select, joins, where);
       if (config.dev) console.log(q);
