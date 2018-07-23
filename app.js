@@ -13,7 +13,9 @@ var fs = require('fs');
 var async = require('async');
 var mime = require('mime');
 var config = require(__dirname + '/config.js');
-
+const io = require('socket.io')(config.port, {
+   'maxHttpBufferSize': 1000000
+});
 
 var mysql = require('mysql');
 
