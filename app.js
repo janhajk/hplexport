@@ -244,7 +244,7 @@ var createPath = function(node) {
    }
    // Pfad in der Rheinfolge der einzelnen Elemente
    var pfad = [];
-   pfad.push(''); // Phase wird nicht berücksichtigt
+   //pfad.push(phase) // Phase wird nicht berücksichtigt
    pfad.push(abschnitt.join('/'));
    if (node.type==='baujournal') pfad.push('Baujournal');
    if (node.type==='projektjournal') pfad.push('Projektjournal');
